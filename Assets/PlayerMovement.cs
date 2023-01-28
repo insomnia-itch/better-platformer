@@ -10,9 +10,15 @@ public class PlayerMovement : MonoBehaviour
 
     [SerializeField] private float speed = 10f;
     [SerializeField] private float jumpForce = 10f;
+    [SerializeField] private float jumpHeight = 4f;
+    [SerializeField] private float gravityScale = 5f;
+    [SerializeField] private float fallGravityScale = 15f;
     private float moveHorizontal;
     private float moveVertical;
+    private float jumpButtonPressedAt;
+    private float jumpButtonPressedWindow = 0.3f;
     [SerializeField] private bool isGrounded;
+    [SerializeField] private bool isJumping = false;
     // Empty game object placed at player feet
     [SerializeField] private Transform groundCheck;
     [SerializeField] private LayerMask groundLayer;
@@ -31,6 +37,7 @@ public class PlayerMovement : MonoBehaviour
     private void FixedUpdate()
     {
         Run();
+        // Fall();
     }
 
     // Make the player move horizontally
@@ -52,8 +59,38 @@ public class PlayerMovement : MonoBehaviour
         //   prevents action from calling back when button is released
         if (context.performed && isGrounded)
         {
-            Vector2 newForce = new Vector2(0f, jumpForce);
+            rb.gravityScale = gravityScale;
+            jumpForce = Mathf.Sqrt(jumpHeight * (Physics2D.gravity.y * rb.gravityScale) * -2) * rb.mass;
+            Vector2 newForce = Vector2.up * jumpForce;
             rb.AddForce(newForce, ForceMode2D.Impulse); 
+            isJumping = true;
+            jumpButtonPressedAt = 0;
+        }
+
+
+        if (isJumping)
+        {
+            jumpButtonPressedAt += Time.deltaTime;
+            if (jumpButtonPressedAt < jumpButtonPressedWindow && context.performed)
+            {
+                rb.gravityScale = fallGravityScale;
+            }
+            if (rb.velocity.y < 0)
+            {
+                isJumping = false;
+                rb.gravityScale = gravityScale;
+            }
+        }
+    }
+
+    private void Fall()
+    {
+        if (rb.velocity.y > 0.1f)
+        {
+            rb.gravityScale = gravityScale;
+        } else
+        {
+            rb.gravityScale = fallGravityScale;
         }
     }
 
