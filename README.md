@@ -18,4 +18,6 @@
 
 - https://www.youtube.com/watch?v=c9kxUvCKhwQ
 
+- https://gmtk.itch.io/platformer-toolkit/devlog/395523/behind-the-code
+
 
